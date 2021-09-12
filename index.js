@@ -29,7 +29,7 @@ function authenticate(req, res, next) {
             }else{
                 console.log(decoded)
                 req.userid = decoded.id;
-            next()
+                next()
             }
             
         });
@@ -192,16 +192,130 @@ app.post("/addtheatre",[authenticate], async function (req, res) {
 
         // Find the user with email_id
         req.body.userid = req.userid;
-        let user = await db.collection("admins_theatres").insertOne(req.body.name);
+        let data = await db.collection("admins_theatres").insertOne(req.body);
 
         await client.close();
 
         res.json({
             message: "Theatre Added",
-            id: data._id
+            // id: data._id
         })
     } catch (error) {
         console.log(error)
+    }
+})
+app.get("/theatres",[authenticate], async function (req, res) {
+    try {
+        // Connect the Database
+        let client = await mongoClient.connect(url)
+
+        // Select the DB
+        let db = client.db("loginadmin");
+
+        // Select the collection and perform action
+        let data = await db.collection("admins_theatres").find({userid : req.userid}).toArray();
+
+        // Close the Connection
+        client.close();
+
+        res.json(data)
+    } catch (error) {
+        res.status(500).json({
+            message: "Something went wrong"
+        })
+    }
+})
+app.delete("/remove-theatre/:id",[authenticate], async function (req, res) {
+    try {
+        // Connect the Database
+        let client = await mongoClient.connect(url)
+
+        // Select the DB
+        let db = client.db("loginadmin")
+
+        // Select the Collection and perform the action
+        let data = await db.collection("admins_theatres")
+            .findOneAndDelete({ _id: mongodb.ObjectId(req.params.id) })
+
+        // Close the Connection
+        await client.close();
+
+        res.json({
+            message: "Theatre Deleted"
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: "Something Went Wrong"
+        })
+    }
+})
+app.post("/addshow/:id",[authenticate],async function(req,res){
+     // Connect the Database
+    try{ let client = await mongoClient.connect(url)
+
+     // Select the DB
+     let db = client.db("loginadmin")
+
+     // Select the Collection and perform the action
+     req.body.userid = req.userid;
+     req.body.theatre = req.params.id
+        console.log(req.body)
+        let data = await db.collection("theatre_shows").insertOne(req.body)
+     // Close the Connection
+     await client.close();
+
+     res.json({
+         message: "Theatre Deleted"
+     })
+ } catch (error) {
+     res.status(500).json({
+         message: "Something Went Wrong"
+     })
+    }
+})
+
+app.get("/movies/:id",[authenticate], async function(req,res){
+    try{
+         let client = await mongoClient.connect(url)
+
+        // Select the DB
+        let db = client.db("loginadmin")
+   
+        // Select the Collection and perform the action
+       
+           let data = await db.collection("theatre_shows").find({userid : req.userid,theatre:req.params.id}).toArray();
+        // Close the Connection
+        await client.close();
+   
+        res.json(data)
+    } catch (error) {
+        res.status(500).json({
+            message: "Something Went Wrong"
+        })
+       }
+})
+app.delete("/remove-movie/:id",[authenticate], async function (req, res) {
+    try {
+        // Connect the Database
+        let client = await mongoClient.connect(url)
+
+        // Select the DB
+        let db = client.db("loginadmin")
+
+        // Select the Collection and perform the action
+        let data = await db.collection("theatre_shows")
+            .findOneAndDelete({ _id: mongodb.ObjectId(req.params.id) })
+
+        // Close the Connection
+        await client.close();
+
+        res.json({
+            message: "Movie Deleted"
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: "Something Went Wrong"
+        })
     }
 })
 app.listen(PORT, function () {
