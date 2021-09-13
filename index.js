@@ -27,7 +27,7 @@ function authenticate(req, res, next) {
                     message: "Unauthorized"
                 })
             }else{
-                console.log(decoded)
+                // console.log(decoded)
                 req.userid = decoded.id;
                 next()
             }
@@ -261,6 +261,7 @@ app.post("/addshow/:id",[authenticate],async function(req,res){
      req.body.theatre = req.params.id
         console.log(req.body)
         let data = await db.collection("theatre_shows").insertOne(req.body)
+        // let data2 = await db.collection("seats").insertMany()
      // Close the Connection
      await client.close();
 
@@ -273,7 +274,6 @@ app.post("/addshow/:id",[authenticate],async function(req,res){
      })
     }
 })
-
 app.get("/movies/:id",[authenticate], async function(req,res){
     try{
          let client = await mongoClient.connect(url)
@@ -340,26 +340,49 @@ app.get("/listmovies", async function(req,res){
         })
        }
 })
-// app.get("/listusertheatres",[authenticate], async function(req,res){
-//     try{
-//          let client = await mongoClient.connect(url)
+app.get("/seats/:id",[authenticate], async function(req,res){
+    try{
+         let client = await mongoClient.connect(url)
 
-//         // Select the DB
-//         let db = client.db("loginadmin")
+        // Select the DB
+        let db = client.db("loginadmin")
    
-//         // Select the Collection and perform the action
-       
-//            let data = await db.collection("admins_theatres").find({},{"name":1,"_id":1}).toArray()
-//         // Close the Connection
-//         await client.close();
+        // Select the Collection and perform the action
+        // console.log(req.params.id)
+           let data = await db.collection("theatre_shows").find({},{_id:req.params.id}).toArray()
+        // Close the Connection
+        await client.close();
    
-//         res.json(data)
-//     } catch (error) {
-//         res.status(500).json({
-//             message: "Something Went Wrong"
-//         })
-//        }
-// })
+        res.json(data)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: "Something Went Wrong"
+        })
+       }
+})
+app.put("/seatbook/:id",[authenticate],async function(req,res){
+    try{
+        let client = await mongoClient.connect(url)
+
+       // Select the DB
+       let db = client.db("loginadmin")
+  
+       // Select the Collection and perform the action
+       // console.log(req.params.id)
+          let data = await db.collection("theatre_shows").findOneAndUpdate({_id:mongodb.ObjectId(req.params.id)},{$set:{"seats.$[elem].status":req.body.status}},{ arrayFilters: [ { "elem.row": req.body.row,"elem._id": req.body._id }] });
+          console.log(data)
+       // Close the Connection
+       await client.close();
+  
+       res.json(data)
+   } catch (error) {
+       console.log(error)
+       res.status(500).json({
+           message: "Something Went Wrong"
+       })
+    }
+})
 
 
 app.listen(PORT, function () {
