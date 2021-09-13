@@ -318,6 +318,50 @@ app.delete("/remove-movie/:id",[authenticate], async function (req, res) {
         })
     }
 })
+app.get("/listmovies", async function(req,res){
+    try{
+         let client = await mongoClient.connect(url)
+
+        // Select the DB
+        let db = client.db("loginadmin")
+   
+        // Select the Collection and perform the action
+       
+           let data = await db.collection("theatre_shows").find({},{"name":1,"_id":1}).toArray()
+           let data2 = await db.collection("admins_theatres").find().toArray()
+
+        // Close the Connection
+        await client.close();
+   
+        res.json([data,data2])
+    } catch (error) {
+        res.status(500).json({
+            message: "Something Went Wrong"
+        })
+       }
+})
+// app.get("/listusertheatres",[authenticate], async function(req,res){
+//     try{
+//          let client = await mongoClient.connect(url)
+
+//         // Select the DB
+//         let db = client.db("loginadmin")
+   
+//         // Select the Collection and perform the action
+       
+//            let data = await db.collection("admins_theatres").find({},{"name":1,"_id":1}).toArray()
+//         // Close the Connection
+//         await client.close();
+   
+//         res.json(data)
+//     } catch (error) {
+//         res.status(500).json({
+//             message: "Something Went Wrong"
+//         })
+//        }
+// })
+
+
 app.listen(PORT, function () {
     console.log(`The app is listening in port ${PORT}`)
 })
