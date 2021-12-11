@@ -79,7 +79,7 @@ app.get("/confirm-admin/:token",async function(req,res){
     try {
         jwt.verify(req.params.token,process.env.JWT_SECRET,async function(error,decoded){
             let client = await mongoClient.connect(url)
-            let db = client.db("loginadmin");
+            let db = client.db("loginadmin1");
             let user = await db.collection("admins").findOne({_id:mongodb.ObjectId(decoded.id)});
            
             if(user){
@@ -161,7 +161,7 @@ app.post("/register-admin", async function (req, res) {
         let client = await mongoClient.connect(url)
 
         // Select the DB
-        let db = client.db("loginadmin");
+        let db = client.db("loginadmin1");
 
         // Hash the password
         let salt = bcryptjs.genSaltSync(10);
@@ -260,7 +260,7 @@ app.post("/login-admin", async function (req, res) {
         let client = await mongoClient.connect(url)
 
         // Select the DB
-        let db = client.db("loginadmin");
+        let db = client.db("loginadmin1");
 
         // Find the user with email_id
         let user = await db.collection("admins").findOne({ username: req.body.username });
@@ -299,7 +299,7 @@ app.post("/addtheatre",[authenticate], async function (req, res) {
         let client = await mongoClient.connect(url)
 
         // Select the DB
-        let db = client.db("loginadmin");
+        let db = client.db("loginadmin1");
 
         // Find the user with email_id
         req.body.adminid = req.userid;
@@ -321,7 +321,7 @@ app.get("/theatres",[authenticate], async function (req, res) {
         let client = await mongoClient.connect(url)
 
         // Select the DB
-        let db = client.db("loginadmin");
+        let db = client.db("loginadmin1");
 
         // Select the collection and perform action
         let data = await db.collection("admins_theatres").find({adminid : req.userid}).toArray();
@@ -342,7 +342,7 @@ app.delete("/remove-theatre/:id",[authenticate], async function (req, res) {
         let client = await mongoClient.connect(url)
 
         // Select the DB
-        let db = client.db("loginadmin")
+        let db = client.db("loginadmin1")
 
         // Select the Collection and perform the action
         let data = await db.collection("admins_theatres")
@@ -365,7 +365,7 @@ app.post("/addshow/:id",[authenticate],async function(req,res){
     try{ let client = await mongoClient.connect(url)
 
      // Select the DB
-     let db = client.db("loginadmin")
+     let db = client.db("loginadmin1")
 
      // Select the Collection and perform the action
      req.body.adminid = req.userid;
@@ -391,7 +391,7 @@ app.get("/movies/:id",[authenticate], async function(req,res){
          let client = await mongoClient.connect(url)
 
         // Select the DB
-        let db = client.db("loginadmin")
+        let db = client.db("loginadmin1")
    
         // Select the Collection and perform the action
        
@@ -412,7 +412,7 @@ app.delete("/remove-movie/:id",[authenticate], async function (req, res) {
         let client = await mongoClient.connect(url)
 
         // Select the DB
-        let db = client.db("loginadmin")
+        let db = client.db("loginadmin1")
 
         // Select the Collection and perform the action
         let data = await db.collection("theatre_shows")
@@ -435,7 +435,7 @@ app.get("/listmovies", async function(req,res){
          let client = await mongoClient.connect(url)
 
         // Select the DB
-        let db = client.db("loginadmin")
+        let db = client.db("loginadmin1")
    
         // Select the Collection and perform the action
        
@@ -457,7 +457,7 @@ app.get("/seats/:id",[authenticate], async function(req,res){
          let client = await mongoClient.connect(url)
 
         // Select the DB
-        let db = client.db("loginadmin")
+        let db = client.db("loginadmin1")
    
         // Select the Collection and perform the action
         // console.log(req.params.id)
@@ -478,7 +478,7 @@ app.get("/seats/:id",[authenticate], async function(req,res){
 app.put("/seatbooked/:id",[authenticate], async function(req,res){
     try {
         let client = await mongoClient.connect(url)
-        let db = client.db("loginadmin")
+        let db = client.db("loginadmin1")
         let db2 = client.db("loginuser")
         // let data = await db.collection("theatre_shows").findOneAndUpdate({_id:mongodb.ObjectId(req.params.id)},{$set:{"seats.$[elem].status":req.body.status,"seats.$[elem].statusid":req.body.statusid}},{ arrayFilters: [ { "elem.row": req.body.row,"elem._id": req.body._id }] });
       
@@ -518,7 +518,7 @@ app.put("/seatbook/:id",[authenticate],async function(req,res){
         let client = await mongoClient.connect(url)
 
        // Select the DB
-       let db = client.db("loginadmin")
+       let db = client.db("loginadmin1")
   
        // Select the Collection and perform the action
        // console.log(req.params.id)
