@@ -114,11 +114,31 @@ app.post("/register", async function (req, res) {
         req.body.password = hash;
         req.body.verified=false;
         let email = await db.collection("users").findOne({username:req.body.username});
+        // console.log(email._id)
         if(email){
-            res.json({
-                message:"User already Exists!"
+            let token = jwt.sign({ id: email._id }, process.env.JWT_SECRET)
+            console.log(token)
+            let transporter = nodemailer.createTransport({
+                service:"hotmail",
+                auth: {
+                  user: process.env.user, 
+                  pass: process.env.pass,
+                }})
+                let url = `${process.env.host}/confirm/${token}`
+                await transporter.sendMail({
+                from:process.env.user,
+                to:req.body.username,
+                subject:"Confirm Email!",
+                html:`<h1>Hey there!</h1>
+                Verify your account for User in Movie Booking App: <a href=${url}>${url}</a>`
             })
-        }
+            
+            console.log("Email sent")
+            res.json({
+                message: "Confirmation Email Sent",
+                // id: data._id
+            })
+        }     
         // Select the Collection and perform the action
         else{
             let data = await db.collection("users").insertOne(req.body)
@@ -173,10 +193,27 @@ app.post("/register-admin", async function (req, res) {
 
         // Close the Connection
         if(email){
-            await client.close();
-            console.log("Admin Exists")
+            let token = jwt.sign({ id: email._id }, process.env.JWT_SECRET)
+            console.log(token)
+            let transporter = nodemailer.createTransport({
+                service:"hotmail",
+                auth: {
+                  user: process.env.user, 
+                  pass: process.env.pass,
+                }})
+                let url = `${process.env.host}/confirm-admin/${token}`
+                await transporter.sendMail({
+                from:process.env.user,
+                to:req.body.username,
+                subject:"Confirm Email!",
+                html:`<h1>Hey there!</h1>
+                Verify your account for Admin in Movie Booking App: <a href=${url}>${url}</a>`
+            })
+            
+            console.log("Email sent")
             res.json({
-                message:"Admin already exists"
+                message: "Confirmation Email Sent",
+                // id: data._id
             })
         }
         else{
