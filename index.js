@@ -562,7 +562,7 @@ app.post('/razorpay',[authenticate], async (req, res) => {
 	const currency = 'INR'
 
 	const options = {
-		amount: amount * 100,
+		amount: amount * req.body.count,
 		currency,
 		// receipt: shortid.generate(),
 		payment_capture
