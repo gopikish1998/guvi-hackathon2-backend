@@ -133,7 +133,7 @@ app.post("/register", async function (req, res) {
                 }})
                 let url = `${process.env.host}/confirm/${token}`
                 await transporter.sendMail({
-                from:process.env.user,
+                from:`Movie Booking App <${process.env.user}>`,
                 to:req.body.username,
                 subject:"Confirm Email!",
                 html:`<h1>Hey there!</h1>
@@ -159,7 +159,7 @@ app.post("/register", async function (req, res) {
                 }})
                 let url = `${process.env.host}/confirm/${token}`
                 await transporter.sendMail({
-                from:process.env.user,
+                from:`Movie Booking App <${process.env.user}>`,
                 to:req.body.username,
                 subject:"Confirm Email!",
                 html:`<h1>Hey there!</h1>
@@ -210,7 +210,7 @@ app.post("/register-admin", async function (req, res) {
                 }})
                 let url = `${process.env.host}/confirm-admin/${token}`
                 await transporter.sendMail({
-                from:process.env.user,
+                from:`Movie Booking App <${process.env.user}>`,
                 to:req.body.username,
                 subject:"Confirm Email!",
                 html:`<h1>Hey there!</h1>
@@ -237,7 +237,7 @@ app.post("/register-admin", async function (req, res) {
                 }})
                 let url = `${process.env.host}/confirm-admin/${token}`
                 await transporter.sendMail({
-                from:process.env.user,
+                from:`Movie Booking App <${process.env.user}>`,
                 to:req.body.username,
                 subject:"Confirm Email!",
                 html:`<h1>Hey there!</h1>
@@ -551,9 +551,9 @@ app.put("/seatbooked/:id",[authenticate], async function(req,res){
                 subject:"Booked Tickets",
                 html:`<h1>Hey find your tickets</h1>
                 Your booked tickets details <br/>
-            <h3>Movie Name:${data[0].moviename},<br/>
-            Movie Time:${data[0].time},<br/>
-            Theatre: ${theatre},<br/><h3>
+            <h3>Movie Name:${data.moviename},<br/>
+            Movie Time:${data.time},<br/>
+            Theatre: ${theatre.name},<br/><h3>
             Seats:${result.map(obj=>{return(`Row ${obj.row}-Seat ${obj._id}`)})}<br/>`})
     } catch (error) {
         console.log(error)
