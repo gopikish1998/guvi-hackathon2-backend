@@ -6,6 +6,8 @@ const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoClient = mongodb.MongoClient;
 const dotenv = require("dotenv")
+const Razorpay = require('razorpay')
+
 dotenv.config();
 // const url = "mongodb+srv://vasanth:admin123@cluster0.9v1ks.mongodb.net?retryWrites=true&w=majority";
 const url = process.env.DB;
@@ -13,6 +15,10 @@ const PORT = process.env.PORT || 3001;
 app.use(cors({
     origin: "*"
 }))
+const razorpay = new Razorpay({
+    key_id:"rzp_test_ATpjQlVb8Ah2vF",
+    key_secret:"hC5aEySaTRFaFpuBwBvBYW2s"
+})
 const nodemailer = require("nodemailer")
 
 app.use(express.json());
@@ -550,6 +556,31 @@ app.put("/seatbooked/:id",[authenticate], async function(req,res){
         res.json(error)
     }
 })
+app.post('/razorpay',[authenticate], async (req, res) => {
+	const payment_capture = 1
+	const amount = 250
+	const currency = 'INR'
+
+	const options = {
+		amount: amount * 100,
+		currency,
+		// receipt: shortid.generate(),
+		payment_capture
+	}
+
+	try {
+		const response = await razorpay.orders.create(options)
+		console.log(response)
+		res.json({
+			id: response.id,
+			currency: response.currency,
+			amount: response.amount
+		})
+	} catch (error) {
+		console.log(error)
+	}
+})
+
 app.put("/seatbook/:id",[authenticate],async function(req,res){
     try{
         let client = await mongoClient.connect(url)
