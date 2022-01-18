@@ -36,6 +36,7 @@ function authenticate(req, res, next) {
             }else{
                 // console.log(decoded)
                 req.userid = decoded.id;
+                console.log(req.userid)
                 next()
             }
             
@@ -370,7 +371,7 @@ app.get("/theatres",[authenticate], async function (req, res) {
         let data = await db.collection("admins_theatres").find({adminid : req.userid}).toArray();
 
         // Close the Connection
-        client.close();
+        await client.close();
 
         res.json(data)
     } catch (error) {
@@ -504,10 +505,11 @@ app.get("/seats/:id",[authenticate], async function(req,res){
    
         // Select the Collection and perform the action
         // console.log(req.params.id)
-           let data = await db.collection("theatre_shows").find({},{_id:req.params.id}).toArray()
+           let data = await db.collection("theatre_shows").findOne({_id:mongodb.ObjectId(req.params.id)})
         // Close the Connection
         // console.log(req.userid)
-        data[0].userid = req.userid
+        data.userid = req.userid
+        console.log(data)
         await client.close();
         // console.log(data)
         res.json(data)
@@ -521,18 +523,20 @@ app.get("/seats/:id",[authenticate], async function(req,res){
 app.put("/seatbooked/:id",[authenticate], async function(req,res){
     try {
         let client = await mongoClient.connect(url)
+        // let client2 = await mongoClient.connect(url)
         let db = client.db("loginadmin1")
         let db2 = client.db("loginuser")
         // let data = await db.collection("theatre_shows").findOneAndUpdate({_id:mongodb.ObjectId(req.params.id)},{$set:{"seats.$[elem].status":req.body.status,"seats.$[elem].statusid":req.body.statusid}},{ arrayFilters: [ { "elem.row": req.body.row,"elem._id": req.body._id }] });
       
         await db.collection("theatre_shows").updateMany({_id:mongodb.ObjectId(req.params.id)},{$set:{"seats.$[elem].booked":true,"seats.$[elem].bookedid":req.body.userid}},{ arrayFilters: [ { "elem.status":true,"elem.statusid": req.body.userid } ]})
         // let data = await db.collection("theatre_shows").  
-        let data= await db.collection("theatre_shows").find({_id:mongodb.ObjectId(req.params.id)}).toArray();
-        let theatre = await db.collection("admins_theatres").findOne({_id:data[0].theatre})
-        let result = data[0].seats.filter((obj)=>obj.booked==true&&obj.bookedid==req.userid);
-        let email = await db2.collection("users").find({_id:mongodb.ObjectId(req.userid)},{username:1}).toArray()
+        let data  = await db.collection("theatre_shows").findOne({ _id: mongodb.ObjectId(req.params.id) });
+        let theatre = await db.collection("admins_theatres").findOne({_id:mongodb.ObjectId(data.theatre)})
+        let result = data.seats.filter((obj)=>obj.booked==true&&obj.bookedid==req.userid);
+        let email = await db2.collection("users").findOne({ _id:mongodb.ObjectId(req.userid) });
         await client.close()
-        console.log(result,email)
+        // await client2.close()
+        console.log(email)
         res.json({data,email})
         let transporter = nodemailer.createTransport({
             service:"hotmail",
@@ -542,8 +546,8 @@ app.put("/seatbooked/:id",[authenticate], async function(req,res){
             }})
             
             await transporter.sendMail({
-                from:process.env.user,
-                to:email[0].username,
+                from:`Movie Booking App <${process.env.user}>`,
+                to:email.username,
                 subject:"Booked Tickets",
                 html:`<h1>Hey find your tickets</h1>
                 Your booked tickets details <br/>
@@ -558,7 +562,7 @@ app.put("/seatbooked/:id",[authenticate], async function(req,res){
 })
 app.post('/razorpay',[authenticate], async (req, res) => {
 	const payment_capture = 1
-	const amount = 250
+	const amount = 25000
 	const currency = 'INR'
 
 	const options = {
@@ -571,7 +575,7 @@ app.post('/razorpay',[authenticate], async (req, res) => {
 	try {
 		const response = await razorpay.orders.create(options)
 		console.log(response)
-		res.json({
+		res.json({ 
 			id: response.id,
 			currency: response.currency,
 			amount: response.amount
@@ -596,7 +600,7 @@ app.put("/seatbook/:id",[authenticate],async function(req,res){
        else{
            req.body.statusid=0
        }
-          let data = await db.collection("theatre_shows").findOneAndUpdate({_id:mongodb.ObjectId(req.params.id)},{$set:{"seats.$[elem].status":req.body.status,"seats.$[elem].statusid":req.body.statusid}},{ arrayFilters: [ { "elem.row": req.body.row,"elem._id": req.body._id }] });
+          let data = await db.collection("theatre_shows").findOneAndUpdate({_id:mongodb.ObjectId(req.params.id)},{$set:{"seats.$[elem].status":req.body.status,"seats.$[elem].statusid":req.body.statusid}},{ arrayFilters: [ { "elem.row": req.body.row,"elem._id": req.body._id }] },{returnNewDocument:true});
           console.log(data)
        // Close the Connection
        await client.close();
@@ -614,3 +618,14 @@ app.put("/seatbook/:id",[authenticate],async function(req,res){
 app.listen(PORT, function () {
     console.log(`The app is listening in port ${PORT}`)
 })
+
+// app.get('/sample', [authenticate], async (req, res) => {
+//      let client = await mongoClient.connect(url)
+//     console.log(req.userid);
+//        // Select the DB
+//     let db = client.db("loginuser")
+//     let email = await db.collection("users").find({ _id:mongodb.ObjectId(req.userid) }).toArray()
+//     await client.close()
+//     console.log(email)
+//     res.json(email)
+// })
