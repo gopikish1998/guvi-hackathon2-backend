@@ -309,7 +309,7 @@ app.post("/login-admin", async function (req, res) {
         // Find the user with email_id
         let user = await db.collection("admins").findOne({ username: req.body.username });
 
-        if (user.verified) {
+        if (user&&user.verified) {
             // Hash the incoming password
             // Compare that password with user's password
             console.log(req.body)
