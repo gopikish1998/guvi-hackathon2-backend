@@ -551,7 +551,7 @@ app.put("/seatbooked/:id",[authenticate], async function(req,res){
                 subject:"Booked Tickets",
                 html:`<h1>Hey find your tickets</h1>
                 Your booked tickets details <br/>
-            <h3>Movie Name:${data.moviename},<br/>
+            <h3>Movie Name:${data.movieName},<br/>
             Movie Time:${data.time},<br/>
             Theatre: ${theatre.name},<br/><h3>
             Seats:${result.map(obj=>{return(`Row ${obj.row}-Seat ${obj._id}`)})}<br/>`})
